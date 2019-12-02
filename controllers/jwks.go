@@ -13,7 +13,7 @@ import (
 func rsaKeyset() (*oidc.JWKS, error) {
 
 	pub := config.PublicKey()
-	b64 := base64.StdEncoding.EncodeToString
+	b64 := base64.RawURLEncoding.EncodeToString
 
 	e := big.Int{}
 	e.SetUint64(uint64(pub.E))

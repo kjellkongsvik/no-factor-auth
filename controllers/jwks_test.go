@@ -24,10 +24,11 @@ func TestJwks(t *testing.T) {
 	if assert.NoError(t, Jwks(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		keys := oidc.JWKS{}
-		json.Unmarshal(rec.Body.Bytes(), &keys)
+		err := json.Unmarshal(rec.Body.Bytes(), &keys)
+		assert.NoError(t, err)
 		assert.Equal(t, keys.Keys[0].Kid, "1")
 
-		b64 := base64.StdEncoding.EncodeToString
+		b64 := base64.RawURLEncoding.EncodeToString
 		assert.Equal(t, keys.Keys[0].N, b64(config.PublicKey().N.Bytes()))
 	}
 }
