@@ -12,8 +12,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func newToken(sub, iss, aud, nonce, name string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+type pair struct{
+	key string
+	values []string
+}
+
+func newTokenWithClaims(sub, iss, aud, nonce, name string, claims map[string]interface{}) (string, error) {
+	defaultClaims := jwt.MapClaims{
 		"sub":       sub,
 		"nbf":       time.Now().Unix(),
 		"iss":       iss,
@@ -24,7 +29,13 @@ func newToken(sub, iss, aud, nonce, name string) (string, error) {
 		"iat":       time.Now().Unix(),
 		"exp":       time.Now().Add(1 * time.Hour).Unix(),
 		"name":      name,
-	})
+	}
+
+	for key, value := range claims {
+		defaultClaims[key] = value
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, defaultClaims)
 
 	token.Header = map[string]interface{}{
 		"typ": "JWT",
@@ -39,6 +50,11 @@ func newToken(sub, iss, aud, nonce, name string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func newToken(sub, iss, aud, nonce, name string) (string, error){
+	var extraClaims map[string]interface{}
+	return newTokenWithClaims(sub, iss, aud, nonce, name, extraClaims)
 }
 
 // Authorize provides id_token and access_token to anyone who asks
