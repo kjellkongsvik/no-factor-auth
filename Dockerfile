@@ -21,4 +21,5 @@ ARG TENANT_ID
 
 COPY --from=base /code/no-factor-auth.linux no-factor-auth
 
+EXPOSE 8089
 CMD ["./no-factor-auth"]
