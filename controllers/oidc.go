@@ -12,6 +12,16 @@ import (
 // StdOidcConfigURI is the standard endpoint for oidc config
 const StdOidcConfigURI = "/.well-known/openid-configuration"
 
+func OpenIDConfigV2(c echo.Context) error {
+	oidc := oidc.OidcV2(hostURLV2(c))
+	return c.JSON(http.StatusOK, &oidc)
+}
+
+func hostURLV2(c echo.Context) string{
+	suffix := strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
+	return "http://" + c.Request().Host + strings.TrimSuffix(suffix, "/v2.0")
+}
+
 // OidcConfig returns config for host
 func OidcConfig(c echo.Context) error {
 
