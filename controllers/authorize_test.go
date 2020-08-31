@@ -14,6 +14,46 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAuthorizeV2(t *testing.T) {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet,
+		"http://auth:8089/common/oauth2/v2.0/authorize?client_id=ci", nil)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+	if !assert.NoError(t, AuthorizeV2(c)){
+		return
+	}
+
+	if !assert.Equal(t, http.StatusFound, rec.Code){
+		return
+	}
+
+	loc, err := rec.Result().Location()
+
+	if !assert.NoError(t, err){
+		return
+	}
+
+	fragments := strings.Split(loc.Fragment, "&")
+	var accessToken string
+	prefix := "access_token="
+	for _, frag := range fragments {
+		if strings.HasPrefix(frag, prefix) {
+			accessToken = strings.TrimPrefix(frag, prefix)
+			break
+		}
+	}
+
+	token, _, _ := new(jwt.Parser).ParseUnverified(accessToken, jwt.MapClaims{})
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	assert.True(t, ok)
+	assert.Equal(t, "ci", claims["aud"])
+	assert.Equal(t, "http://auth:8089/common/v2.0", claims["iss"])
+
+}
+
 func TestAuthorized(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
