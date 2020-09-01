@@ -34,6 +34,14 @@ func setup(e *echo.Echo) {
 	com.GET("/oauth2/token", controllers.Token)
 }
 
+func setupV2(e *echo.Echo, tokenClaims map[string]interface{}){
+	com := e.Group("/common")
+	com.GET("/v2.0/.well-known/openid-configuration", controllers.OpenIDConfigV2)
+	com.GET("/discovery/v2.0/keys", controllers.Jwks)
+	com.GET("/oauth2/v2.0/authorize", controllers.AuthorizeV2)
+	com.POST("/oauth2/v2.0/token", controllers.TokenV2(tokenClaims))
+}
+
 func version() {
 	fmt.Println("Version:", Version)
 	fmt.Println("Go Version:", runtime.Version())
@@ -61,6 +69,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	setup(e)
+	setupV2(e, make(map[string]interface{}))
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8089"))
 }
