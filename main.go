@@ -68,8 +68,14 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	tokenClaims := map[string]interface{}{
+                "iss": os.Getenv("TOKEN_ENDPOINT_ISSUER"),
+                "sub": os.Getenv("TOKEN_ENDPOINT_SUBJECT"),
+                "aud": os.Getenv("TOKEN_ENDPOINT_AUDIENCE"),
+        }
+
 	setup(e)
-	setupV2(e, make(map[string]interface{}))
+	setupV2(e, tokenClaims)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8089"))
 }
