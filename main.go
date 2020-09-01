@@ -1,11 +1,8 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"os"
-	"runtime"
 
 	"github.com/equinor/no-factor-auth/controllers"
 
@@ -18,11 +15,6 @@ var (
 	authServer string
 	tenantID   string
 	certPath   string
-)
-
-var (
-	Version = ""
-	v       = flag.Bool("version", false, "Display version")
 )
 
 func setup(e *echo.Echo) {
@@ -42,20 +34,7 @@ func setupV2(e *echo.Echo, tokenClaims map[string]interface{}){
 	com.POST("/oauth2/v2.0/token", controllers.TokenV2(tokenClaims))
 }
 
-func version() {
-	fmt.Println("Version:", Version)
-	fmt.Println("Go Version:", runtime.Version())
-	os.Exit(0)
-}
-
 func main() {
-
-	flag.Parse()
-
-	if *v {
-		version()
-	}
-
 	err := godotenv.Load()
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatal("Error loading .env file", err)

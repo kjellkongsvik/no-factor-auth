@@ -11,7 +11,7 @@ COPY . .
 ENV CGO_ENABLED=0
 RUN go test ./...
 
-RUN go build -ldflags "-X main.Version=$TAG"
+RUN go build
 
 FROM scratch
 
