@@ -147,5 +147,6 @@ func OidcV2(url string) *OpenIDConfig {
 	oidc.JwksURI = url + "/discovery/v2.0/keys"
 	oidc.Issuer = url + "/v2.0"
 	oidc.AuthorizationEndpoint = url + "/oauth2/v2.0/authorize"
+	oidc.TokenEndpoint = url + "/oauth2/v2.0/token"
 	return oidc
 }
