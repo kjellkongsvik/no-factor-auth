@@ -2,11 +2,25 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"sort"
 	"testing"
+	"net/http"
+	"net/http/httptest"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/labstack/echo/v4"
 )
+
+func TestTokenV2(t *testing.T){
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	var tokenClaims map[string]interface{}
+	err := TokenV2(tokenClaims)(c)
+	assert.NoError(t, err)
+}
 
 func TestShouldReturnParseError(t *testing.T) {
 	jsonString := []byte ("malformed json")

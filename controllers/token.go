@@ -86,3 +86,15 @@ func ParseExtraClaims(addClaims []byte)(map[string]interface{}, error){
 
 	return res, err
 }
+
+func TokenV2(claims map[string]interface{}) func(c echo.Context) error {
+	return func(c echo.Context) error {
+
+		a, err := newTokenV2(claims)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a})
+	}
+}
