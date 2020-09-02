@@ -37,7 +37,6 @@ func TestOidc(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, StdOidcConfigURI, nil)
 	rec := httptest.NewRecorder()
 	authServer := "http://example.com"
-	// tenantID := "common"
 	c := e.NewContext(req, rec)
 	var oidc oidc.OpenIDConfig
 	if assert.NoError(t, OidcConfig(c)) {
@@ -52,7 +51,6 @@ func TestOidcTenant(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, tenant+StdOidcConfigURI, nil)
 	rec := httptest.NewRecorder()
 	authServer := "http://example.com" + tenant
-	// tenantID := "common"
 	c := e.NewContext(req, rec)
 	var oidc oidc.OpenIDConfig
 	if assert.NoError(t, OidcConfig(c)) {

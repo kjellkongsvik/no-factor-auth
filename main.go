@@ -11,12 +11,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var (
-	authServer string
-	tenantID   string
-	certPath   string
-)
-
 func setup(e *echo.Echo) {
 
 	com := e.Group("/common")
@@ -40,8 +34,6 @@ func main() {
 		log.Fatal("Error loading .env file", err)
 	}
 
-	authServer = os.Getenv("AUTHSERVER")
-	tenantID = os.Getenv("TENANT_ID")
 	e := echo.New()
 
 	e.Use(middleware.Logger())

@@ -15,9 +15,6 @@ RUN go build
 
 FROM scratch
 
-ARG AUTHSERVER
-ARG TENANT_ID
-
 COPY --from=base /code/no-factor-auth .
 
 EXPOSE 8089

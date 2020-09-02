@@ -133,7 +133,6 @@ func GetKey(authserver string, kid string) (interface{}, error) {
 
 func Default() *OpenIDConfig {
 	oidc := &OpenIDConfig{
-		// JwksURI:               authServer + "/" + tenantID + "/discovery/keys",
 		SubjectTypesSupported:               []string{"pairwise"},
 		IDTokenEncryptionAlgValuesSupported: []string{"RS256"},
 		IDTokenSigningAlgValuesSupported:    []string{"RS256", "HS256"},
