@@ -1,7 +1,5 @@
 FROM golang as base
 
-RUN update-ca-certificates
-
 WORKDIR /code
 
 COPY ./go.mod ./go.sum ./
