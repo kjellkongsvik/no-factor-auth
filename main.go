@@ -1,12 +1,10 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/equinor/no-factor-auth/controllers"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -29,11 +27,6 @@ func setupV2(e *echo.Echo, tokenClaims map[string]interface{}){
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatal("Error loading .env file", err)
-	}
-
 	e := echo.New()
 
 	e.Use(middleware.Logger())

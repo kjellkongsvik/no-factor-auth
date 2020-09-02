@@ -3,7 +3,6 @@ module github.com/equinor/no-factor-auth
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/labstack/gommon v0.3.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
