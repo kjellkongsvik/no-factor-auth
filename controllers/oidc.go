@@ -24,9 +24,6 @@ func hostURLV2(c echo.Context) string{
 
 // OidcConfig returns config for host
 func OidcConfig(c echo.Context) error {
-
-	// baseUrl := c
-
 	hostURL := "http://" + c.Request().Host + strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
 	oidc := oidc.Default()
 	oidc.JwksURI = hostURL + "/discovery/keys"

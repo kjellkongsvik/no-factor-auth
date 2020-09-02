@@ -12,11 +12,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type pair struct{
-	key string
-	values []string
-}
-
 func newTokenV2(claims map[string]interface{}) (string, error){
 	defaultClaims := jwt.MapClaims{
 		"nbf":       time.Now().Unix(),

@@ -1,15 +1,9 @@
 package oidc
 
 import (
-	"crypto/rsa"
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"math/big"
 	"net/http"
 	"time"
-
-	"github.com/labstack/gommon/log"
 )
 
 // OpenIDConfig is the expected return from the wellk-known endpoint
@@ -71,64 +65,6 @@ func getJSON(url string, target interface{}) error {
 	defer r.Body.Close()
 
 	return json.NewDecoder(r.Body).Decode(target)
-}
-
-// GetKey gets the authservers signing key
-func GetKey(authserver string, kid string) (interface{}, error) {
-	oidcConf := OpenIDConfig{}
-	err := getJSON(authserver+"/.well-known/openid-configuration", &oidcConf)
-	if err != nil {
-		return nil, err
-	}
-
-	jwksURI := oidcConf.JwksURI
-
-	jwks := JWKS{}
-	err = getJSON(jwksURI, &jwks)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(jwks.Keys) == 0 {
-		return nil, fmt.Errorf("No keys in key set: %s", jwksURI)
-	}
-	fromB64 := base64.RawURLEncoding.DecodeString
-	jwk := jwks.Keys[0]
-	if jwk.Kty == "RSA" {
-
-		b, err := fromB64(jwk.E)
-		if err != nil {
-			return nil, err
-		}
-		e := big.Int{}
-		e.SetBytes(b)
-
-		b, err = fromB64(jwk.N)
-		if err != nil {
-			return nil, err
-		}
-		n := big.Int{}
-		n.SetBytes(b)
-
-		return &rsa.PublicKey{N: &n, E: int(e.Int64())}, nil
-
-	}
-	fmt.Println("uri", jwks.Keys[0])
-	// var ks jose.JsonWebKeySet
-
-	// resp, err := httpClient.Get(origin)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer resp.Body.Close()
-
-	// if err := json.NewDecoder(resp.Body).Decode(&ks); err != nil {
-	// 	return nil, err
-	// }
-
-	// return ks.Keys, nil
-	log.Panic("foo")
-	return nil, nil
 }
 
 func Default() *OpenIDConfig {
