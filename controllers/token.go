@@ -58,9 +58,9 @@ func Token(c echo.Context) error {
 	var err error
 	if len(extraClaimsBytes) > 0 {
 		extraClaims, err = ParseExtraClaims(extraClaimsBytes)
-		if err != nil{
+		if err != nil {
 			return c.JSON(http.StatusBadRequest,
-				TokenErrorResponse{Error: fmt.Sprintf("Unable to parse extra_claims: %s",err.Error())})
+				TokenErrorResponse{Error: fmt.Sprintf("Unable to parse extra_claims: %s", err.Error())})
 		}
 	}
 
@@ -72,15 +72,15 @@ func Token(c echo.Context) error {
 	return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a, IDToken: a, TokenType: "Bearer"})
 }
 
-func ParseExtraClaims(addClaims []byte)(map[string]interface{}, error){
+func ParseExtraClaims(addClaims []byte) (map[string]interface{}, error) {
 	var f interface{}
 	var res map[string]interface{}
 	var err error
 
-	if addClaims != nil{
+	if addClaims != nil {
 		err = json.Unmarshal(addClaims, &f)
 	}
-	if f != nil{
+	if f != nil {
 		res = f.(map[string]interface{})
 	}
 

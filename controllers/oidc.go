@@ -17,7 +17,7 @@ func OpenIDConfigV2(c echo.Context) error {
 	return c.JSON(http.StatusOK, &oidc)
 }
 
-func hostURLV2(c echo.Context) string{
+func hostURLV2(c echo.Context) string {
 	suffix := strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
 	return "http://" + c.Request().Host + strings.TrimSuffix(suffix, "/v2.0")
 }

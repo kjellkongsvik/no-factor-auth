@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHostURLV2(t *testing.T){
+func TestHostURLV2(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, StdOidcConfigURI, nil)
 	rec := httptest.NewRecorder()

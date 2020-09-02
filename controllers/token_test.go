@@ -2,17 +2,17 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"sort"
 	"testing"
-	"net/http"
-	"net/http/httptest"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestTokenV2(t *testing.T){
+func TestTokenV2(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -23,7 +23,7 @@ func TestTokenV2(t *testing.T){
 }
 
 func TestShouldReturnParseError(t *testing.T) {
-	jsonString := []byte ("malformed json")
+	jsonString := []byte("malformed json")
 
 	_, err := ParseExtraClaims(jsonString)
 	assert.Error(t, err, "Malformed json should return error")
@@ -34,7 +34,7 @@ func TestParseJson(t *testing.T) {
 	oidValue := "b213-61024b63a7ea"
 	arrValue := "some-value"
 
-	jsonString := []byte (`{"oid":"` + oidValue + `", "arr_elem_key":["` + arrValue + `","foo"]}`)
+	jsonString := []byte(`{"oid":"` + oidValue + `", "arr_elem_key":["` + arrValue + `","foo"]}`)
 
 	result, err := ParseExtraClaims(jsonString)
 

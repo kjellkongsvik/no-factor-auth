@@ -12,11 +12,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func newTokenV2(claims map[string]interface{}) (string, error){
+func newTokenV2(claims map[string]interface{}) (string, error) {
 	defaultClaims := jwt.MapClaims{
-		"nbf":       time.Now().Unix(),
-		"iat":       time.Now().Unix(),
-		"exp":       time.Now().Add(1 * time.Hour).Unix(),
+		"nbf": time.Now().Unix(),
+		"iat": time.Now().Unix(),
+		"exp": time.Now().Add(1 * time.Hour).Unix(),
 	}
 
 	for key, value := range claims {
@@ -41,9 +41,9 @@ func newTokenV2(claims map[string]interface{}) (string, error){
 }
 
 type authorizeReq struct {
-	RedirectURI	string `query:"redirect_uri"`
-	ClientID	string `query:"client_id"`
-	State		string `query:"state"`
+	RedirectURI string `query:"redirect_uri"`
+	ClientID    string `query:"client_id"`
+	State       string `query:"state"`
 }
 
 func AuthorizeV2(c echo.Context) error {
@@ -106,7 +106,7 @@ func newTokenWithClaims(sub, iss, aud, nonce, name string, claims map[string]int
 	return tokenString, nil
 }
 
-func newToken(sub, iss, aud, nonce, name string) (string, error){
+func newToken(sub, iss, aud, nonce, name string) (string, error) {
 	var extraClaims map[string]interface{}
 	return newTokenWithClaims(sub, iss, aud, nonce, name, extraClaims)
 }

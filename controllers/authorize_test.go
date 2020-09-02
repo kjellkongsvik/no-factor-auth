@@ -21,17 +21,17 @@ func TestAuthorizeV2(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
-	if !assert.NoError(t, AuthorizeV2(c)){
+	if !assert.NoError(t, AuthorizeV2(c)) {
 		return
 	}
 
-	if !assert.Equal(t, http.StatusFound, rec.Code){
+	if !assert.Equal(t, http.StatusFound, rec.Code) {
 		return
 	}
 
 	loc, err := rec.Result().Location()
 
-	if !assert.NoError(t, err){
+	if !assert.NoError(t, err) {
 		return
 	}
 
