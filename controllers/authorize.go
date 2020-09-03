@@ -52,9 +52,14 @@ func AuthorizeV2(c echo.Context) error {
 		return err
 	}
 
+	proto := "http"
+	if c.IsTLS() {
+		proto = "https"
+	}
+
 	claims := jwt.MapClaims{
 		"sub": r.ClientID,
-		"iss": "http://" + c.Request().Host + "/common/v2.0",
+		"iss": proto + "://" + c.Request().Host + "/common/v2.0",
 		"aud": r.ClientID,
 	}
 

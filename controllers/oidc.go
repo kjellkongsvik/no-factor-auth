@@ -19,12 +19,20 @@ func OpenIDConfigV2(c echo.Context) error {
 
 func hostURLV2(c echo.Context) string {
 	suffix := strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
-	return "http://" + c.Request().Host + strings.TrimSuffix(suffix, "/v2.0")
+	proto := "http"
+	if c.IsTLS() {
+		proto = "https"
+	}
+	return proto + "://" + c.Request().Host + strings.TrimSuffix(suffix, "/v2.0")
 }
 
 // OidcConfig returns config for host
 func OidcConfig(c echo.Context) error {
-	hostURL := "http://" + c.Request().Host + strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
+	proto := "http"
+	if c.IsTLS() {
+		proto = "https"
+	}
+	hostURL := proto + "://" + c.Request().Host + strings.TrimSuffix(c.Request().URL.String(), StdOidcConfigURI)
 	oidc := oidc.Default()
 	oidc.JwksURI = hostURL + "/discovery/keys"
 	oidc.Issuer = hostURL

@@ -38,8 +38,13 @@ func main() {
 		"aud": os.Getenv("TOKEN_ENDPOINT_AUDIENCE"),
 	}
 
+	keyFile := os.Getenv("KEY_FILE")
+	certFile := os.Getenv("CERT_FILE")
 	setup(e)
 	setupV2(e, tokenClaims)
-
-	e.Logger.Fatal(e.Start("0.0.0.0:8089"))
+	if (len(keyFile) > 0) && (len(certFile)) > 0 {
+		e.Logger.Fatal(e.StartTLS("0.0.0.0:443", certFile, keyFile))
+	} else {
+		e.Logger.Fatal(e.Start("0.0.0.0:8089"))
+	}
 }
