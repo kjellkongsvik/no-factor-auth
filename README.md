@@ -2,6 +2,10 @@
 
 It doesn't provide security, it provides a signed token to services that needs to perform e2e testing
 
+## Contributions
+
+Contributions are very welcome. There are lots that can be improved in this project.
+
 ## Setup
 
 It contains a private key in config.go that signs the jwt tokens
