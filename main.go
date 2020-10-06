@@ -24,6 +24,7 @@ func setupV2(e *echo.Echo, tokenClaims map[string]interface{}) {
 	com.GET("/discovery/v2.0/keys", controllers.Jwks)
 	com.GET("/oauth2/v2.0/authorize", controllers.AuthorizeV2)
 	com.POST("/oauth2/v2.0/token", controllers.TokenV2(tokenClaims))
+	com.POST("/oauth2/v2.0/devicecode", controllers.DeviceCode)
 }
 
 func main() {
