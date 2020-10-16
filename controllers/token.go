@@ -3,16 +3,18 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
+	"log"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 // TokenOKResponse ok type
 type TokenOKResponse struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
-	ExpiresIn    string `json:"expires_in"`
-	ExpiresOn    string `json:"expires_on"`
+	ExpiresIn    int `json:"expires_in"`
+	ExpiresOn    int `json:"expires_on"`
 	Resource     string `json:"resource"`
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
@@ -69,7 +71,14 @@ func Token(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a, IDToken: a, TokenType: "Bearer"})
+	var t TokenOKResponse
+	t.AccessToken = a
+	t.IDToken = a
+	t.TokenType = "Bearer"
+	t.ExpiresIn = 0
+	t.ExpiresOn = 0
+
+	return c.JSON(http.StatusOK, t)
 }
 
 func ParseExtraClaims(addClaims []byte) (map[string]interface{}, error) {
@@ -87,14 +96,43 @@ func ParseExtraClaims(addClaims []byte) (map[string]interface{}, error) {
 	return res, err
 }
 
+type req struct {
+	GrantType string `query:"grant_type"`
+	ClientID string `query:"client_id"`
+}
+
 func TokenV2(claims map[string]interface{}) func(c echo.Context) error {
 	return func(c echo.Context) error {
 
-		a, err := newTokenV2(claims)
+		r := new(req)
+		if err := c.Bind(r); err != nil {
+			return err
+		}
+		var ccc map[string]interface{}
+		log.Println(r)
+		claims["aud"] = r.ClientID
+		if r.GrantType == "urn:ietf:params:oauth:grant-type:jwt-bearer" {
+			ccc = claims
+		} else if r.GrantType == "urn:ietf:params:oauth:grant-type:device_code" {
+			claims["client_id"] = r.ClientID
+			ccc = claims
+		} else {
+
+		}
+
+		a, err := newTokenV2(ccc)
 		if err != nil {
 			return err
 		}
+		var t TokenOKResponse
+		t.AccessToken = a
+		t.IDToken = a
+		t.TokenType = "Bearer"
+		t.ExpiresIn = 0
+		t.ExpiresOn = 0
 
-		return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a})
+		log.Printf("%v\n", t)
+		return c.JSON(http.StatusOK, t)
+
 	}
 }
