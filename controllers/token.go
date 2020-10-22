@@ -97,8 +97,8 @@ func ParseExtraClaims(addClaims []byte) (map[string]interface{}, error) {
 }
 
 type req struct {
-	GrantType string `query:"grant_type"`
-	ClientID string `query:"client_id"`
+	GrantType string `form:"grant_type"`
+	ClientID string `form:"client_id"`
 }
 
 func TokenV2(claims map[string]interface{}) func(c echo.Context) error {
@@ -109,15 +109,20 @@ func TokenV2(claims map[string]interface{}) func(c echo.Context) error {
 			return err
 		}
 		var ccc map[string]interface{}
+		log.Println("___________________________________________________--")
 		log.Println(r)
-		claims["aud"] = r.ClientID
+		log.Println(r.GrantType)
+//		claims["aud"] = r.ClientID
 		if r.GrantType == "urn:ietf:params:oauth:grant-type:jwt-bearer" {
 			ccc = claims
 		} else if r.GrantType == "urn:ietf:params:oauth:grant-type:device_code" {
-			claims["client_id"] = r.ClientID
+			claims["iss"] = "https://auth/common/v2.0"
+			claims["sub"] = r.ClientID
+			claims["aud"] = r.ClientID
+
 			ccc = claims
 		} else {
-
+			ccc = claims
 		}
 
 		a, err := newTokenV2(ccc)
