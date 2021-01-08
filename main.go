@@ -34,12 +34,12 @@ func setup(e *echo.Echo) {
 	com.GET("/oauth2/token", controllers.Token)
 }
 
-func setupV2(e *echo.Echo, tokenClaims map[string]interface{}){
+func setupV2(e *echo.Echo) {
 	com := e.Group("/common")
 	com.GET("/v2.0/.well-known/openid-configuration", controllers.OpenIDConfigV2)
 	com.GET("/discovery/v2.0/keys", controllers.Jwks)
 	com.GET("/oauth2/v2.0/authorize", controllers.AuthorizeV2)
-	com.POST("/oauth2/v2.0/token", controllers.TokenV2(tokenClaims))
+	com.POST("/oauth2/v2.0/token", controllers.TokenV2)
 }
 
 func version() {
@@ -68,14 +68,8 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	tokenClaims := map[string]interface{}{
-                "iss": os.Getenv("TOKEN_ENDPOINT_ISSUER"),
-                "sub": os.Getenv("TOKEN_ENDPOINT_SUBJECT"),
-                "aud": os.Getenv("TOKEN_ENDPOINT_AUDIENCE"),
-        }
-
 	setup(e)
-	setupV2(e, tokenClaims)
+	setupV2(e)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:8089"))
 }

@@ -3,8 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/equinor/no-factor-auth/config"
+	"github.com/labstack/echo/v4"
 )
 
 // TokenOKResponse ok type
@@ -17,6 +22,7 @@ type TokenOKResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
 	IDToken      string `json:"id_token"`
+	Code         string `json:"code"`
 }
 
 // TokenErrorResponse error type
@@ -58,13 +64,13 @@ func Token(c echo.Context) error {
 	var err error
 	if len(extraClaimsBytes) > 0 {
 		extraClaims, err = ParseExtraClaims(extraClaimsBytes)
-		if err != nil{
+		if err != nil {
 			return c.JSON(http.StatusBadRequest,
-				TokenErrorResponse{Error: fmt.Sprintf("Unable to parse extra_claims: %s",err.Error())})
+				TokenErrorResponse{Error: fmt.Sprintf("Unable to parse extra_claims: %s", err.Error())})
 		}
 	}
 
-	a, err := newTokenWithClaims("anon1", c.Request().Host, clientID, "Foo", "Jane Doe", extraClaims)
+	a, err := newTokenWithClaims("anon1", c.Request().Host, clientID, extraClaims)
 	if err != nil {
 		return err
 	}
@@ -72,29 +78,79 @@ func Token(c echo.Context) error {
 	return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a, IDToken: a, TokenType: "Bearer"})
 }
 
-func ParseExtraClaims(addClaims []byte)(map[string]interface{}, error){
+func ParseExtraClaims(addClaims []byte) (map[string]interface{}, error) {
 	var f interface{}
 	var res map[string]interface{}
 	var err error
 
-	if addClaims != nil{
+	if addClaims != nil {
 		err = json.Unmarshal(addClaims, &f)
 	}
-	if f != nil{
+	if f != nil {
 		res = f.(map[string]interface{})
 	}
 
 	return res, err
 }
 
-func TokenV2(claims map[string]interface{}) func(c echo.Context) error {
-	return func(c echo.Context) error {
-
-		a, err := newTokenV2(claims)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: a})
+func newTokenV2(claims map[string]interface{}) (string, error) {
+	defaultClaims := jwt.MapClaims{
+		"nbf": time.Now().Unix(),
+		"iat": time.Now().Unix(),
+		"exp": time.Now().Add(1 * time.Hour).Unix(),
 	}
+
+	for key, value := range claims {
+		defaultClaims[key] = value
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, defaultClaims)
+
+	token.Header = map[string]interface{}{
+		"typ": "JWT",
+		"alg": jwt.SigningMethodRS256.Name,
+		"kid": "1",
+	}
+
+	tokenString, err := token.SignedString(config.PrivateKey())
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+
+}
+
+type tokenQuery struct {
+	GrantType string `query:"grant_type"`
+}
+
+func TokenV2(c echo.Context) error {
+	r := new(tokenQuery)
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+	claims := map[string]interface{}{
+		"exp": time.Now().Add(1 * time.Hour).Unix(),
+	}
+	fmt.Printf("r: %v", r)
+	fmt.Printf("grant_type: %v", r.GrantType)
+	claims["iss"] = "http://no-factor-auth:8089/common/v2.0"
+	claims["aud"] = "id"
+	claims["email"] = "gpl@equinor.com"
+	if r.GrantType == "authorization_code" {
+		claims["iss"] = "http://no-factor-auth:8089/common/v2.0"
+		claims["sub"] = "sub"
+
+	} else if r.GrantType == "urn:ietf:params:oauth:grant-type:jwt-bearer" {
+		claims["iss"] = os.Getenv("TOKEN_ENDPOINT_ISSUER")
+		claims["sub"] = os.Getenv("TOKEN_ENDPOINT_SUBJECT")
+		claims["aud"] = os.Getenv("TOKEN_ENDPOINT_AUDIENCE")
+	}
+	token, err := newTokenV2(claims)
+	if err != nil {
+		return err
+	}
+	exp := fmt.Sprintf("%v", claims["exp"])
+	return c.JSON(http.StatusOK, TokenOKResponse{AccessToken: token, IDToken: token, ExpiresIn: exp})
 }
